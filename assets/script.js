@@ -86,26 +86,33 @@
     });
   }
 
-  // Load Bing daily background image（加载 Bing 每日背景图）
-  // 通过官方 HPImageArchive 接口获取；失败时使用后备图片
-  function setBingBackground() {
+  // Dynamic background（免 CORS 背景图，按日变化）
+  // 说明：不再调用 Bing JSON 接口，避免本地开发环境的 CORS 限制。
+  //      使用 picsum + unsplash 的图片直链进行逐级回退，预加载后设置为背景。
+  function setDynamicBackground() {
     if (!bingBgEl) return;
-    var api = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN";
-    fetch(api).then(function (r) {
-      return r.json();
-    }).then(function (data) {
-      var img = data && data.images && data.images[0];
-      var u = img && img.url;
-      if (u) {
-        var full = u.startsWith("http") ? u : "https://www.bing.com" + u;
-        bingBgEl.style.backgroundImage = 'url("' + full + '")';
-      }
-    }).catch(function () {
-      // Fallback image（后备图）
-      bingBgEl.style.backgroundImage = 'url("https://bing.com/th?id=OHR.MaroonBells_CO_ZH-CN0706425959_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp")';
-    });
+    var seed = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    var candidates = [
+      'https://picsum.photos/seed/' + seed + '/1920/1080',
+      'https://source.unsplash.com/1920x1080/?nature,landscape',
+      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop'
+    ];
+    var i = 0;
+    function tryNext() {
+      if (i >= candidates.length) return;
+      var url = candidates[i++];
+      var img = new Image();
+      img.onload = function () {
+        bingBgEl.style.backgroundImage = 'url("' + url + '")';
+      };
+      img.onerror = function () {
+        tryNext();
+      };
+      img.src = url;
+    }
+    tryNext();
   }
-  setBingBackground();
+  setDynamicBackground();
 
   // Mouse light glow（鼠标光影跟随）
   // 将鼠标位置写入 CSS 变量 --x/--y，以驱动 radial-gradient 光影层
