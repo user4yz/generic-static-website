@@ -162,8 +162,8 @@
       var base =
         "px-3 py-1.5 rounded-xl border text-sm transition inline-flex items-center gap-2 bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/20";
       var act =
-        "text-white bg-sky-600 border-sky-700 shadow-sm ring-2 ring-sky-300/50 hover:bg-sky-700 " +
-        "dark:bg-violet-500 dark:border-violet-400 dark:ring-violet-300/40 dark:hover:bg-violet-600";
+        "!text-white !bg-sky-600 hover:!bg-sky-700 " +
+        "dark:!text-white dark:!bg-violet-500 dark:hover:!bg-violet-600";
       return (
         '<button class="' +
         base +

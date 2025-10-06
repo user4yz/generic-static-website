@@ -113,3 +113,9 @@ html.dark .glass-header.scrolled {
   background-color: rgba(15, 23, 42, 0.35);
   border-bottom-color: rgba(255, 255, 255, 0.16);
 }
+
+/* 收藏/复制按钮悬浮动效 */
+.fav-btn:hover i,
+.copy-btn:hover i {
+  animation: wobble 420ms ease;
+}
