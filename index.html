@@ -30,16 +30,22 @@
   <!-- Custom styles (background, minor helpers) -->
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-slate-100 selection:bg-fuchsia-500/30 selection:text-white">
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-200 text-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 dark:text-slate-100 selection:bg-fuchsia-500/30 selection:text-white">
+  <!-- Bing 背景图（每日） -->
+  <div id="bingBg" class="fixed inset-0 -z-20 bg-center bg-cover opacity-60 dark:opacity-40"></div>
+
   <!-- 背景液态光斑 -->
-  <div class="fixed inset-0 -z-10 overflow-hidden">
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div class="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-fuchsia-500/20 blur-3xl"></div>
     <div class="absolute top-32 left-1/2 -translate-x-1/2 h-[20rem] w-[20rem] rounded-full bg-cyan-400/20 blur-2xl"></div>
     <div class="absolute bottom-0 right-0 h-[30rem] w-[30rem] rounded-full bg-indigo-500/25 blur-3xl"></div>
   </div>
 
+  <!-- 鼠标光影跟随 -->
+  <div id="cursorGlow" class="fixed inset-0 -z-5 pointer-events-none"></div>
+
   <!-- 页头 -->
-  <header class="sticky top-0 z-30 backdrop-blur-xl bg-slate-900/60 border-b border-white/10">
+  <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/70 dark:bg-slate-900/60 border-b border-slate-200/50 dark:border-white/10">
     <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 border border-white/20 shadow-glass">
@@ -97,12 +103,17 @@
   </main>
 
   <!-- 页脚 -->
-  <footer class="mt-8 border-t border-white/10">
-    <div class="mx-auto max-w-7xl px-4 py-6 text-sm text-slate-300">
+  <footer class="mt-8 border-t border-slate-200/50 dark:border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-6 text-sm text-slate-700 dark:text-slate-300">
       <p>构建于 Tailwind CSS + Font Awesome · 玻璃拟态风格</p>
-      <p class="mt-1">数据可参考：<a class="underline hover:text-fuchsia-300" href="https://dev-tools-hub.180822.xyz/" target="_blank" rel="noopener">dev-tools-hub.180822.xyz</a></p>
+      <p class="mt-1">数据可参考：<a class="underline hover:text-fuchsia-600 dark:hover:text-fuchsia-300" href="https://dev-tools-hub.180822.xyz/" target="_blank" rel="noopener">dev-tools-hub.180822.xyz</a></p>
     </div>
   </footer>
+
+  <!-- Toast 提示 -->
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg bg-slate-900/80 text-white text-sm shadow-lg opacity-0 translate-y-2 pointer-events-none transition z-40 dark:bg-slate-900/80">
+    已复制链接
+  </div>
 
   <!-- 数据与脚本 -->
   <script src="assets/data.js"></script>

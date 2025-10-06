@@ -27,3 +27,25 @@ body {
 * {
   transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
+
+/* Bing 背景图以及鼠标光影跟随 */
+:root {
+  --x: 50%;
+  --y: 50%;
+}
+
+#bingBg {
+  background-size: cover;
+  background-position: center;
+  filter: saturate(120%) contrast(105%);
+}
+
+#cursorGlow {
+  pointer-events: none;
+  background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.28), rgba(255,255,255,0) 60%);
+  mix-blend-mode: overlay;
+}
+
+html.dark #cursorGlow {
+  background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.12), rgba(255,255,255,0) 60%);
+}

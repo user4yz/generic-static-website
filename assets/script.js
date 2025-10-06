@@ -1,10 +1,11 @@
 (function () {
-  // Theme: initialize from localStorage or system preference
+  // Keys
   var THEME_KEY = "nav_theme";
   var FAVORITES_KEY = "nav_favorites";
   var CATEGORY_KEY = "nav_category";
   var FAVORITES_ONLY_KEY = "nav_fav_only";
 
+  // Elements
   var root = document.documentElement;
   var toggleThemeBtn = document.getElementById("toggleTheme");
   var searchInput = document.getElementById("searchInput");
@@ -13,13 +14,26 @@
   var emptyStateEl = document.getElementById("emptyState");
   var resultCountEl = document.getElementById("resultCount");
   var favoritesOnlyBtn = document.getElementById("showFavorites");
+  var toastEl = document.getElementById("toast");
+  var bingBgEl = document.getElementById("bingBg");
+  var cursorGlowEl = document.getElementById("cursorGlow");
 
+  // State
   var favorites = new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"));
   var state = {
     category: localStorage.getItem(CATEGORY_KEY) || "all",
     query: "",
     favoritesOnly: localStorage.getItem(FAVORITES_ONLY_KEY) === "1"
   };
+
+  // Theme helpers
+  function updateThemeButton() {
+    if (!toggleThemeBtn) return;
+    var isDark = root.classList.contains("dark");
+    toggleThemeBtn.innerHTML =
+      '<i class="fa-solid ' + (isDark ? 'fa-moon' : 'fa-sun') + ' mr-1.5"></i>' +
+      '<span class="hidden sm:inline">' + (isDark ? '深色模式' : '浅色模式') + '</span>';
+  }
 
   function setTheme(theme) {
     if (theme === "dark") {
@@ -28,6 +42,7 @@
       root.classList.remove("dark");
     }
     localStorage.setItem(THEME_KEY, theme);
+    updateThemeButton();
   }
 
   // Initialize theme
@@ -49,6 +64,48 @@
     });
   }
 
+  // Load Bing daily background image
+  function setBingBackground() {
+    if (!bingBgEl) return;
+    var api = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN";
+    fetch(api).then(function (r) {
+      return r.json();
+    }).then(function (data) {
+      var img = data && data.images && data.images[0];
+      var u = img && img.url;
+      if (u) {
+        var full = u.startsWith("http") ? u : "https://www.bing.com" + u;
+        bingBgEl.style.backgroundImage = 'url("' + full + '")';
+      }
+    }).catch(function () {
+      // Fallback image
+      bingBgEl.style.backgroundImage = 'url("https://bing.com/th?id=OHR.MaroonBells_CO_ZH-CN0706425959_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp")';
+    });
+  }
+  setBingBackground();
+
+  // Mouse light glow
+  window.addEventListener("mousemove", function (e) {
+    if (!cursorGlowEl) return;
+    var x = e.clientX + "px";
+    var y = e.clientY + "px";
+    cursorGlowEl.style.setProperty("--x", x);
+    cursorGlowEl.style.setProperty("--y", y);
+  });
+
+  // Toast
+  function showToast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg || "已复制链接";
+    toastEl.classList.remove("opacity-0", "translate-y-2", "pointer-events-none");
+    toastEl.classList.add("opacity-100");
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(function () {
+      toastEl.classList.add("opacity-0", "translate-y-2", "pointer-events-none");
+      toastEl.classList.remove("opacity-100");
+    }, 1200);
+  }
+
   // Category chips
   function renderCategories() {
     var chips = [];
@@ -60,7 +117,7 @@
     var html = chips.map(function (c) {
       var active = c.id === state.category;
       var base =
-        "px-3 py-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-sm transition inline-flex items-center gap-2";
+        "px-3 py-1.5 rounded-xl border text-sm transition inline-flex items-center gap-2 bg-slate-100 border-slate-200 text-slate-700 dark:bg-white/10 dark:border-white/20 dark:text-slate-200";
       var act = "bg-fuchsia-500/30 border-fuchsia-400/40 text-white";
       return (
         '<button class="' +
@@ -159,11 +216,11 @@
     }
 
     var card =
-      'bg-white/10 border border-white/20 backdrop-blur-xl rounded-2xl p-4 shadow-glass hover:bg-white/20 transition';
-    var titleCls = "text-base font-semibold tracking-wide text-white";
-    var descCls = "mt-1.5 text-sm text-slate-300";
+      'bg-white/60 border border-slate-200/60 backdrop-blur-xl rounded-2xl p-4 shadow-glass hover:bg-white/80 transition dark:bg-white/10 dark:border-white/20 dark:hover:bg-white/20';
+    var titleCls = "text-base font-semibold tracking-wide text-slate-800 dark:text-white";
+    var descCls = "mt-1.5 text-sm text-slate-600 dark:text-slate-300";
     var chipCls =
-      "inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 text-xs text-slate-200";
+      "inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-600 dark:bg-white/10 dark:border-white/20 dark:text-slate-200";
 
     var html = items
       .map(function (x) {
@@ -174,10 +231,10 @@
           card +
           '">' +
           '<div class="flex items-start gap-3">' +
-          '<div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 border border-white/20 shrink-0">' +
+          '<div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/20 shrink-0">' +
           '<i class="' +
           (it.icon || "fa-solid fa-link") +
-          ' text-fuchsia-300 text-lg"></i>' +
+          ' text-fuchsia-500 dark:text-fuchsia-300 text-lg"></i>' +
           "</div>" +
           '<div class="flex-1">' +
           '<div class="flex items-center justify-between gap-2">' +
@@ -189,14 +246,14 @@
           it.title +
           "</a>" +
           '<div class="flex items-center gap-2">' +
-          '<button class="fav-btn px-2.5 py-1 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20" aria-label="收藏" data-id="' +
+          '<button class="fav-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20" aria-label="收藏" data-id="' +
           it.id +
           '">' +
           '<i class="' +
-          (fav ? "fa-solid fa-star text-amber-300" : "fa-regular fa-star") +
+          (fav ? "fa-solid fa-star text-amber-400" : "fa-regular fa-star") +
           '"></i>' +
           "</button>" +
-          '<button class="copy-btn px-2.5 py-1 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20" aria-label="复制链接" data-url="' +
+          '<button class="copy-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20" aria-label="复制链接" data-url="' +
           it.url +
           '">' +
           '<i class="fa-solid fa-copy"></i>' +
@@ -246,6 +303,7 @@
       var url = copyBtn.getAttribute("data-url");
       if (!url) return;
       navigator.clipboard && navigator.clipboard.writeText(url);
+      showToast("链接已复制");
       copyBtn.classList.add("ring-2", "ring-fuchsia-400/50");
       setTimeout(function () {
         copyBtn.classList.remove("ring-2", "ring-fuchsia-400/50");
