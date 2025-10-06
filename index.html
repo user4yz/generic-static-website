@@ -1,18 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Static Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0f172a" />
+  <title>开发者网站导航 · Glassmorphism</title>
+
+  <!-- Tailwind CSS (Play CDN). For production, consider a proper build. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slateglass: 'rgba(255,255,255,0.06)'
+          },
+          boxShadow: {
+            glass: '0 8px 24px rgba(15, 23, 42, 0.35)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome 6.5.1 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-5w6QJfFQJYwI3rQFZpF1r0qf3rhp1zQfYf3XgZc6R9nCzP3o0L8Qd3pCk2yGk5u2JQe8vQzCkJH8Yh8pX1j1tw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Custom styles (background, minor helpers) -->
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
-  <main>
-    <h1>Welcome to Your Static Site</h1>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-slate-100 selection:bg-fuchsia-500/30 selection:text-white">
+  <!-- 背景液态光斑 -->
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-fuchsia-500/20 blur-3xl"></div>
+    <div class="absolute top-32 left-1/2 -translate-x-1/2 h-[20rem] w-[20rem] rounded-full bg-cyan-400/20 blur-2xl"></div>
+    <div class="absolute bottom-0 right-0 h-[30rem] w-[30rem] rounded-full bg-indigo-500/25 blur-3xl"></div>
+  </div>
+
+  <!-- 页头 -->
+  <header class="sticky top-0 z-30 backdrop-blur-xl bg-slate-900/60 border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 border border-white/20 shadow-glass">
+          <i class="fa-solid fa-compass text-fuchsia-400"></i>
+        </span>
+        <h1 class="text-lg sm:text-xl font-semibold tracking-wide">
+          开发者网站导航
+        </h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="toggleTheme" class="glass-btn px-3 py-1.5 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-glass">
+          <i class="fa-solid fa-moon mr-1.5"></i>
+          <span class="hidden sm:inline">深色模式</span>
+        </button>
+        <a href="https://dev-tools-hub.180822.xyz/" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-glass">
+          <i class="fa-solid fa-database mr-1.5"></i>
+          数据来源参考
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容 -->
+  <main class="mx-auto max-w-7xl px-4 py-8">
+    <!-- 搜索与统计 -->
+    <section class="mb-6">
+      <div class="flex flex-col md:flex-row gap-3 md:gap-4 items-start md:items-center">
+        <div class="relative flex-1 w-full">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"></i>
+          <input id="searchInput" type="text" placeholder="搜索工具、服务、平台..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/50 placeholder:text-slate-300" />
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span id="resultCount" class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20">0 条结果</span>
+          <button id="showFavorites" class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition">
+            <i class="fa-solid fa-star mr-1 text-amber-300"></i>
+            仅看收藏
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 分类 -->
+    <nav id="categoryBar" class="flex flex-wrap gap-2 mb-6"></nav>
+
+    <!-- 网格 -->
+    <section id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></section>
+
+    <!-- 空态 -->
+    <section id="emptyState" class="hidden mt-10 text-center text-slate-300">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20">
+        <i class="fa-regular fa-circle-xmark"></i>
+        暂无匹配结果，请尝试修改搜索或切换分类。
+      </div>
+    </section>
   </main>
-  <footer>
-    <p>&copy; 2025 Your Name</p>
+
+  <!-- 页脚 -->
+  <footer class="mt-8 border-t border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-6 text-sm text-slate-300">
+      <p>构建于 Tailwind CSS + Font Awesome · 玻璃拟态风格</p>
+      <p class="mt-1">数据可参考：<a class="underline hover:text-fuchsia-300" href="https://dev-tools-hub.180822.xyz/" target="_blank" rel="noopener">dev-tools-hub.180822.xyz</a></p>
+    </div>
   </footer>
+
+  <!-- 数据与脚本 -->
+  <script src="assets/data.js"></script>
   <script src="assets/script.js"></script>
 </body>
 </html>
