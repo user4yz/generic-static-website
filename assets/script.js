@@ -25,6 +25,8 @@
   var siteHeader = document.getElementById("siteHeader");
   var scrollTopBtn = document.getElementById("scrollTopBtn");
   var scrollProgressEl = document.getElementById("scrollProgress");
+  // 描述弹窗容器（用于显示完整描述）
+  var descPopoverEl = document.getElementById("descPopover");
 
   // State（收藏集合 + 筛选条件状态）
   // 说明：favorites 使用 Set，便于 O(1) 判断是否收藏；state 保存分类/关键词/仅看收藏
@@ -107,6 +109,44 @@
     cursorGlowEl.style.setProperty("--x", x);
     cursorGlowEl.style.setProperty("--y", y);
   });
+
+  // 描述弹窗：在点击描述信息时展示完整文本的小窗口
+  function showDescPopover(text, cx, cy) {
+    if (!descPopoverEl) return;
+    descPopoverEl.textContent = text || "";
+    // 先临时放置在屏幕内，避免初次测量尺寸为 0
+    descPopoverEl.style.left = "8px";
+    descPopoverEl.style.top = "8px";
+    // 显示弹窗（带缩放过渡）
+    descPopoverEl.classList.remove("opacity-0", "scale-95", "pointer-events-none");
+    descPopoverEl.classList.add("opacity-100", "scale-100", "pointer-events-auto");
+
+    // 计算合适位置（避免超出视口）
+    var rect = descPopoverEl.getBoundingClientRect();
+    var pad = 8;
+    var left = Math.min(cx + 12, window.innerWidth - rect.width - pad);
+    var top = Math.min(cy + 12, window.innerHeight - rect.height - pad);
+    left = Math.max(pad, left);
+    top = Math.max(pad, top);
+    descPopoverEl.style.left = left + "px";
+    descPopoverEl.style.top = top + "px";
+  }
+  function hideDescPopover() {
+    if (!descPopoverEl) return;
+    descPopoverEl.classList.remove("opacity-100", "scale-100", "pointer-events-auto");
+    descPopoverEl.classList.add("opacity-0", "scale-95", "pointer-events-none");
+  }
+  // 点击页面空白或弹窗外时关闭；按下 ESC、滚动、窗口大小变化也关闭
+  document.addEventListener("click", function (e) {
+    var inside = e.target.closest("#descPopover");
+    var isDesc = e.target.closest(".desc-text");
+    if (!inside && !isDesc) hideDescPopover();
+  });
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") hideDescPopover();
+  });
+  window.addEventListener("scroll", hideDescPopover, { passive: true });
+  window.addEventListener("resize", hideDescPopover);
 
   // Scroll UI: header glass intensify, progress bar, rocket visibility
   // 滚动相关 UI：导航玻璃态（scrolled）、顶部进度条宽度、右下角火箭显隐
@@ -286,7 +326,7 @@
     var card =
       'bg-white/60 border border-slate-200/60 backdrop-blur-xl rounded-2xl p-4 shadow-glass hover:bg-white/80 transition dark:bg-white/10 dark:border-white/20 dark:hover:bg-white/20 tilt';
     var titleCls = "text-base font-semibold tracking-wide text-slate-800 dark:text-white";
-    var descCls = "mt-1.5 text-sm text-slate-600 dark:text-slate-300";
+    var descCls = "mt-1.5 text-sm text-slate-600 dark:text-slate-300 line-clamp-2 cursor-pointer desc-text hover:text-slate-800 dark:hover:text-white";
     var chipCls =
       "inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-600 dark:bg-white/10 dark:border-white/20 dark:text-slate-200";
 
@@ -375,8 +415,15 @@
   }
 
   // Delegated handlers for grid actions（网格事件代理）
-  // 处理收藏与复制点击；更新收藏集合与本地存储；展示反馈动画与 Toast
+  // 处理描述点击（弹窗显示完整内容）、收藏与复制点击；展示反馈动画与 Toast
   gridEl.addEventListener("click", function (e) {
+    // 描述点击：弹出小窗口显示完整内容
+    var descEl = e.target.closest(".desc-text");
+    if (descEl) {
+      showDescPopover(descEl.textContent || "", e.clientX, e.clientY);
+      return;
+    }
+
     var favBtn = e.target.closest(".fav-btn");
     if (favBtn) {
       var id = favBtn.getAttribute("data-id");
