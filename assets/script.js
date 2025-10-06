@@ -155,19 +155,7 @@
   window.addEventListener("scroll", hideDescPopover, { passive: true });
   window.addEventListener("resize", hideDescPopover);
 
-  // Confetti Canvas：更自然的物理动画
-  function resizeConfettiCanvas() {
-    if (!confettiCanvas || !confettiCtx) return;
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    confettiCanvas.width = Math.floor(w * confettiDpr);
-    confettiCanvas.height = Math.floor(h * confettiDpr);
-    confettiCanvas.style.width = w + "px";
-    confettiCanvas.style.height = h + "px";
-    confettiCtx.setTransform(confettiDpr, 0, 0, confettiDpr, 0, 0);
-  }
-  resizeConfettiCanvas();
-  window.addEventListener("resize", resizeConfettiCanvas);
+  
 
   
 
@@ -203,7 +191,7 @@
   // 包装器：优先使用 canvas-confetti（更自然），不可用时使用 DOM 版本
   function launchConfetti(x, y) {
     var hasLib = typeof window.confetti === "function";
-    var api = myConfetti || (hasLib && confettiCanvas ? window.confetti.create(confettiCanvas, { resize: true, useWorker: true }) : null);
+    var api = myConfetti || (hasLib && confettiCanvas ? window.confetti.create(confettiCanvas, { resize: true, useWorker: false }) : null);
     if (api) {
       var origin = {
         x: Math.min(0.98, Math.max(0.02, x / window.innerWidth)),
