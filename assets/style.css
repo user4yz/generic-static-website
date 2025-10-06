@@ -152,7 +152,7 @@ html.dark .glass-header.scrolled {
 
 /* 导航栏品牌（Logo + 标题）动效
  * 悬浮：轻微缩放/倾斜，与整体玻璃风格统一
- * 点击：先抖动（shake），再下落隐藏（drop），随后回弹显示（return）
+ * 点击：多种阶段组合（shake/drop/return、spin/flip/bounce/slide/twist/side）随机播放
  */
 .brand .brand-logo,
 .brand .brand-title {
@@ -165,13 +165,21 @@ html.dark .glass-header.scrolled {
   will-change: transform, opacity, filter;
 }
 
-/* 点击阶段 1：抖动 */
+/* 点击阶段 1：抖动（标准） */
 @keyframes brandShake {
   0%   { transform: translateX(0) rotate(0deg); }
   20%  { transform: translateX(-2px) rotate(-1deg); }
   40%  { transform: translateX(2px) rotate(1deg); }
   60%  { transform: translateX(-1.5px) rotate(-0.8deg); }
   80%  { transform: translateX(1.5px) rotate(0.8deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* 轻微抖动（更克制） */
+@keyframes brandShakeLite {
+  0%   { transform: translateX(0) rotate(0deg); }
+  30%  { transform: translateX(-1px) rotate(-0.5deg); }
+  60%  { transform: translateX(1px) rotate(0.5deg); }
   100% { transform: translateX(0) rotate(0deg); }
 }
 
@@ -187,7 +195,7 @@ html.dark .glass-header.scrolled {
   100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0px); }
 }
 
-/* 品牌容器在不同阶段附加类，驱动子元素动画 */
+/* 品牌容器在不同阶段附加类，驱动子元素动画（标准组） */
 .brand.brand-shake .brand-logo,
 .brand.brand-shake .brand-title {
   animation: brandShake 280ms ease;
@@ -201,10 +209,28 @@ html.dark .glass-header.scrolled {
   animation: brandReturn 420ms ease forwards;
 }
 
-/* 其他随机点击特效：spin / flip / bounce / slide */
+/* 其他随机点击特效：spin / flip / bounce / slide / twist / side */
 /* 说明：与玻璃拟态整体风格统一，保持轻量不喧宾夺主 */
 
-/* 旋转下落 + 旋转回弹 */
+/* 旋转下落 + 旋转回弹（旋转缩放混合） */
+@keyframes brandTwistOut {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(125%) rotate(24deg) scale(0.92); opacity: 0; filter: blur(0.8px); }
+}
+@keyframes brandTwistIn {
+  0%   { transform: translateY(-22%) rotate(-12deg) scale(0.95); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-twist-out .brand-logo,
+.brand.brand-twist-out .brand-title {
+  animation: brandTwistOut 460ms ease forwards;
+}
+.brand.brand-twist-in .brand-logo,
+.brand.brand-twist-in .brand-title {
+  animation: brandTwistIn 500ms ease-out forwards;
+}
+
+/* 旋转下落 + 旋转回弹（更大旋转角度） */
 @keyframes brandSpinOut {
   0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
   100% { transform: translateY(120%) rotate(260deg) scale(0.95); opacity: 0; filter: blur(1px); }
@@ -279,4 +305,45 @@ html.dark .glass-header.scrolled {
 .brand.brand-slide-in .brand-logo,
 .brand.brand-slide-in .brand-title {
   animation: brandSlideIn 420ms ease forwards;
+}
+
+/* 侧向滑出 + 轻微抖动后从侧边飞入 */
+@keyframes brandSideOut {
+  0%   { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateX(120%) rotate(6deg) scale(0.96); opacity: 0; filter: blur(0.6px); }
+}
+@keyframes brandSideIn {
+  0%   { transform: translateX(-18%) rotate(-4deg) scale(0.98); opacity: 0; filter: blur(0.3px); }
+  100% { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-shake-lite .brand-logo,
+.brand.brand-shake-lite .brand-title {
+  animation: brandShakeLite 220ms ease;
+}
+.brand.brand-side-out .brand-logo,
+.brand.brand-side-out .brand-title {
+  animation: brandSideOut 360ms ease forwards;
+}
+.brand.brand-side-in .brand-logo,
+.brand.brand-side-in .brand-title {
+  animation: brandSideIn 420ms ease forwards;
+}
+
+/* Confetti 庆祝特效 */
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 1;
+  transform: translate(0, 0);
+  will-change: transform, opacity;
+  animation: confPop 160ms ease-out, confFall var(--dur, 1200ms) ease-out forwards;
+}
+@keyframes confPop {
+  0%   { transform: translate(0, 0) scale(0.85); }
+  100% { transform: translate(0, -6px) scale(1); }
+}
+@keyframes confFall {
+  100% { transform: translate(var(--dx, 0px), var(--dy, 160px)) rotate(var(--rot, 720deg)); opacity: 0; }
 }

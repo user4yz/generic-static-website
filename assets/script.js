@@ -27,6 +27,8 @@
   var scrollProgressEl = document.getElementById("scrollProgress");
   // 描述弹窗容器（用于显示完整描述）
   var descPopoverEl = document.getElementById("descPopover");
+  // Confetti 图层
+  var confettiLayerEl = document.getElementById("confettiLayer");
   // 品牌区域（Logo + 标题）
   var brandEl = document.getElementById("brand");
 
@@ -150,6 +152,53 @@
   window.addEventListener("scroll", hideDescPopover, { passive: true });
   window.addEventListener("resize", hideDescPopover);
 
+  // Confetti：在指定坐标触发庆祝粒子效果（轻量实现）
+  function launchConfetti(x, y) {
+    if (!confettiLayerEl) return;
+    var colors = [
+      "#22d3ee", // cyan-400
+      "#a78bfa", // violet-400
+      "#f472b6", // fuchsia-400
+      "#f59e0b", // amber-500
+      "#10b981", // emerald-500
+      "#60a5fa"  // blue-400
+    ];
+    var count = 24;
+    for (var i = 0; i < count; i++) {
+      var piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      var sizeW = 6 + Math.floor(Math.random() * 6);
+      var sizeH = 8 + Math.floor(Math.random() * 6);
+      piece.style.width = sizeW + "px";
+      piece.style.height = sizeH + "px";
+      piece.style.left = x + "px";
+      piece.style.top = y + "px";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.borderRadius = (Math.random() < 0.3 ? 50 : 2) + "px";
+      var dx = (Math.random() * 240 - 120);    // 左右散开
+      var dy = (80 + Math.random() * 220);     // 向下飘落
+      var rot = 360 + Math.floor(Math.random() * 720);
+      var dur = 900 + Math.floor(Math.random() * 700);
+      piece.style.setProperty("--dx", dx + "px");
+      piece.style.setProperty("--dy", dy + "px");
+      piece.style.setProperty("--rot", rot + "deg");
+      piece.style.setProperty("--dur", dur + "ms");
+      confettiLayerEl.appendChild(piece);
+      (function (el, t) {
+        setTimeout(function () {
+          el.remove();
+        }, t + 200);
+      })(piece, dur);
+    }
+  }
+  function launchConfettiAtElement(el) {
+    if (!el || !confettiLayerEl) return;
+    var rect = el.getBoundingClientRect();
+    var x = rect.left + rect.width / 2;
+    var y = rect.top + rect.height / 2;
+    launchConfetti(x, y);
+  }
+
   // 品牌点击动效（随机）：从多种特效中随机选择并按阶段执行
   function runBrandClickAnimation() {
     if (!brandEl) return;
@@ -163,6 +212,8 @@
     var effects = [
       // 经典：抖动 -> 掉落 -> 回弹
       { stages: ["brand-shake", "brand-drop", "brand-return"], durations: [300, 430, 440] },
+      // 旋转缩放混合：轻旋 + 缩放下落 -> 旋转缩放回弹
+      { stages: ["brand-twist-out", "brand-twist-in"], durations: [460, 500] },
       // 旋转：旋转下落 -> 旋转回弹
       { stages: ["brand-spin-out", "brand-spin-in"], durations: [500, 520] },
       // 翻转：翻转下落 -> 翻转回弹
@@ -170,7 +221,9 @@
       // 弹性：弹性下落 -> 弹性回弹
       { stages: ["brand-bounce-out", "brand-bounce-in"], durations: [420, 440] },
       // 滑动：斜向滑出 -> 斜向滑入
-      { stages: ["brand-slide-out", "brand-slide-in"], durations: [380, 420] }
+      { stages: ["brand-slide-out", "brand-slide-in"], durations: [380, 420] },
+      // 轻微抖动后侧边飞入：抖动 -> 侧向滑出 -> 侧边飞入
+      { stages: ["brand-shake-lite", "brand-side-out", "brand-side-in"], durations: [220, 360, 420] }
     ];
 
     // 随机选择一个特效
@@ -497,6 +550,8 @@
       } else {
         favorites.add(id);
         showToast("已加入收藏");
+        // 庆祝特效：在收藏按钮处触发彩带
+        launchConfettiAtElement(favBtn);
       }
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
       renderGrid();
