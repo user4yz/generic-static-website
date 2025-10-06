@@ -27,6 +27,8 @@
   var scrollProgressEl = document.getElementById("scrollProgress");
   // 描述弹窗容器（用于显示完整描述）
   var descPopoverEl = document.getElementById("descPopover");
+  // 品牌区域（Logo + 标题）
+  var brandEl = document.getElementById("brand");
 
   // State（收藏集合 + 筛选条件状态）
   // 说明：favorites 使用 Set，便于 O(1) 判断是否收藏；state 保存分类/关键词/仅看收藏
@@ -147,6 +149,36 @@
   });
   window.addEventListener("scroll", hideDescPopover, { passive: true });
   window.addEventListener("resize", hideDescPopover);
+
+  // 品牌点击动效：抖动 -> 掉落 -> 回弹显示
+  function runBrandClickAnimation() {
+    if (!brandEl) return;
+    if (brandEl._animating) return; // 防连点
+    brandEl._animating = true;
+
+    // 阶段 1：抖动
+    brandEl.classList.add("brand", "brand-shake");
+    setTimeout(function () {
+      brandEl.classList.remove("brand-shake");
+      // 阶段 2：掉落
+      brandEl.classList.add("brand-drop");
+      setTimeout(function () {
+        brandEl.classList.remove("brand-drop");
+        // 阶段 3：回弹显示
+        brandEl.classList.add("brand-return");
+        setTimeout(function () {
+          brandEl.classList.remove("brand-return");
+          brandEl._animating = false;
+        }, 440);
+      }, 430);
+    }, 300);
+  }
+
+  if (brandEl) {
+    brandEl.addEventListener("click", function () {
+      runBrandClickAnimation();
+    });
+  }
 
   // Scroll UI: header glass intensify, progress bar, rocket visibility
   // 滚动相关 UI：导航玻璃态（scrolled）、顶部进度条宽度、右下角火箭显隐

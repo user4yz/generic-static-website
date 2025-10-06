@@ -144,10 +144,59 @@ html.dark .glass-header.scrolled {
   border-bottom-color: rgba(255, 255, 255, 0.16);
 }
 
-/* 收藏/复制按钮悬浮动效
- * 说明：在 hover 时触发 wobble 摆动，增强交互趣味
- */
+/* 收藏/复制按钮悬浮动效 */
 .fav-btn:hover i,
 .copy-btn:hover i {
   animation: wobble 420ms ease;
+}
+
+/* 导航栏品牌（Logo + 标题）动效
+ * 悬浮：轻微缩放/倾斜，与整体玻璃风格统一
+ * 点击：先抖动（shake），再下落隐藏（drop），随后回弹显示（return）
+ */
+.brand .brand-logo,
+.brand .brand-title {
+  will-change: transform, opacity, filter;
+}
+
+/* 将品牌容器选择器别名为 #brand 以匹配 HTML 结构 */
+#brand.brand .brand-logo,
+#brand.brand .brand-title {
+  will-change: transform, opacity, filter;
+}
+
+/* 点击阶段 1：抖动 */
+@keyframes brandShake {
+  0%   { transform: translateX(0) rotate(0deg); }
+  20%  { transform: translateX(-2px) rotate(-1deg); }
+  40%  { transform: translateX(2px) rotate(1deg); }
+  60%  { transform: translateX(-1.5px) rotate(-0.8deg); }
+  80%  { transform: translateX(1.5px) rotate(0.8deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* 点击阶段 2：掉落（同时轻微旋转与淡出） */
+@keyframes brandDrop {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(140%) rotate(8deg) scale(0.96); opacity: 0; filter: blur(1px); }
+}
+
+/* 点击阶段 3：回弹显示（自上而下、微缩放 + 透明度渐入） */
+@keyframes brandReturn {
+  0%   { transform: translateY(-20%) scale(0.96); opacity: 0; filter: blur(0.5px); }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0px); }
+}
+
+/* 品牌容器在不同阶段附加类，驱动子元素动画 */
+.brand.brand-shake .brand-logo,
+.brand.brand-shake .brand-title {
+  animation: brandShake 280ms ease;
+}
+.brand.brand-drop .brand-logo,
+.brand.brand-drop .brand-title {
+  animation: brandDrop 420ms ease forwards;
+}
+.brand.brand-return .brand-logo,
+.brand.brand-return .brand-title {
+  animation: brandReturn 420ms ease forwards;
 }
