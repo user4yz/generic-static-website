@@ -32,6 +32,7 @@
   var confettiCanvas = document.getElementById("confettiCanvas");
   var confettiCtx = confettiCanvas && confettiCanvas.getContext("2d");
   var confettiDpr = window.devicePixelRatio || 1;
+  var myConfetti = (window.confetti && confettiCanvas) ? window.confetti.create(confettiCanvas, { resize: true, useWorker: true }) : null;
   // 品牌区域（Logo + 标题）
   var brandEl = document.getElementById("brand");
 
@@ -309,16 +310,34 @@
     }
   }
 
-  // 包装器：优先使用 Canvas 物理版本，不可用时使用 DOM 版本
+  // 包装器：优先使用 canvas-confetti（更自然），不可用时使用 DOM 版本
   function launchConfetti(x, y) {
-    if (confettiCtx && confettiCanvas) {
-      spawnConfetti(x, y, 30);
-      if (!confettiAnimating) {
-        confettiAnimating = true;
-        confettiLastTs = 0;
-        requestAnimationFrame(stepConfetti);
+    var hasLib = typeof window.confetti === "function";
+    var api = myConfetti || (hasLib && confettiCanvas ? window.confetti.create(confettiCanvas, { resize: true, useWorker: true }) : null);
+    if (api) {
+      var origin = {
+        x: Math.min(0.98, Math.max(0.02, x / window.innerWidth)),
+        y: Math.min(0.98, Math.max(0.02, y / window.innerHeight))
+      };
+      var colors = ["#22d3ee", "#a78bfa", "#f472b6", "#f59e0b", "#10b981", "#60a5fa"];
+      var defaults = {
+        origin: origin,
+        colors: colors,
+        disableForReducedMotion: true
+      };
+      function fire(ratio, opts) {
+        api(Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(180 * ratio)
+        }));
       }
+      // 参考 heroui 的质感：多段 burst，起始更快、后续更广、更慢、更大，重力与衰减适度
+      fire(0.25, { spread: 26, startVelocity: 52, scalar: 1.0, ticks: 190 });
+      fire(0.2,  { spread: 60, decay: 0.92, scalar: 0.9, drift: (Math.random() - 0.5) * 0.6, ticks: 200 });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, startVelocity: 38, gravity: 1.05, ticks: 210 });
+      fire(0.1,  { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.15, gravity: 1.1, ticks: 220 });
+      fire(0.1,  { spread: 120, startVelocity: 45, decay: 0.90, scalar: 1.0, gravity: 1.05, ticks: 210 });
     } else {
+      // 若库不可用，回退到 DOM 版本
       launchConfettiDOM(x, y);
     }
   }
