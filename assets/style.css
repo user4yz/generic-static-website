@@ -1,3 +1,16 @@
+/* 样式说明
+ * - 全局排版与过渡
+ * - 玻璃拟态增强（.glass-btn）
+ * - 可访问性焦点样式（:focus-visible）
+ * - Bing 背景图与鼠标光影层
+ * - 图标悬浮动效（闪光 + 摆动）
+ * - 卡片轻微 3D 倾斜（.tilt）
+ * - 导航栏玻璃态（.glass-header / .scrolled）
+ * - 收藏/复制按钮的 wobble 悬浮动效
+ */
+
+/* Minimal global styles; Tailwind handles most UI. */
+
 html, body {
   height: 100%;
   margin: 0;
@@ -5,58 +18,336 @@ html, body {
 }
 
 body {
-  height: 100vh;
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  background: linear-gradient(120deg, #f8fafc 70%, #e7eaf2 100%);
-  color: #222;
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+/* Glass-like backdrop for buttons (enhances tailwind classes)
+ * 说明：给按钮提供更强的玻璃拟态质感（饱和 + 模糊）
+ */
+.glass-btn {
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  backdrop-filter: saturate(180%) blur(8px);
+}
+
+/* Optional: refined focus ring for keyboard users
+ * 说明：键盘可访问性优化，提供更明显的焦点环
+ */
+:focus-visible {
+  outline: 2px solid rgba(244, 114, 182, 0.5); /* fuchsia-400/50 */
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for theme/background
+ * 说明：提升主题切换与悬浮状态的平滑过渡体验
+ */
+* {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+/* Bing 背景图以及鼠标光影跟随
+ * 说明：--x/--y 用于定位径向光影中心
+ */
+:root {
+  --x: 50%;
+  --y: 50%;
+}
+
+/* 背景图增强（饱和度与对比度轻微提升） */
+#bingBg {
+  background-size: cover;
+  background-position: center;
+  filter: saturate(120%) contrast(105%);
+}
+
+/* 鼠标光影层：通过 CSS 变量控制径向渐变位置 */
+#cursorGlow {
+  pointer-events: none;
+  background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.28), rgba(255,255,255,0) 60%);
+  mix-blend-mode: overlay;
+}
+
+/* 深色模式下的光影层稍微减弱以避免过亮 */
+html.dark #cursorGlow {
+  background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.12), rgba(255,255,255,0) 60%);
+}
+
+/* 图标悬浮动态效果：闪光 + 轻微摆动
+ * 说明：hover 时有扫光动画并让图标 wobble 摆动
+ */
+.icon-wrap {
+  position: relative;
   overflow: hidden;
 }
-
-header {
-  background: #23272f;
-  color: #fff;
-  padding: 1.2rem 0 1.2rem;
-  text-align: center;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 10px rgba(40,40,40,0.04);
+.icon-wrap::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -120%;
+  width: 260%;
+  height: 180%;
+  background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%);
+  transform: translateX(0);
+}
+.icon-wrap:hover::after {
+  animation: shine 800ms ease forwards;
 }
 
-main {
-  flex: 1 0 auto;
-  max-width: 750px;
-  width: 100%;
-  margin: 2.2rem auto 0 auto;
-  background: #fff;
-  padding: 2.8rem 2.2rem 2.4rem;
-  border-radius: 18px;
-  box-shadow: 0 6px 32px 0 rgba(42,54,96,0.07), 0 1.5px 6px 0 rgba(0,0,0,0.03);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 65vh;
-  position: relative;
-  overflow-y: auto;
+.icon-wrap:hover i {
+  animation: wobble 480ms ease;
 }
 
-footer {
-  background: #23272f;
-  color: #fff;
-  text-align: center;
-  padding: 1.25rem 0;
-  margin-top: 2.4rem;
-  border-radius: 0 0 18px 18px;
-  font-size: 1rem;
-  box-shadow: 0 -2px 12px 0 rgba(40,40,40,0.06);
-  flex-shrink: 0;
+/* 闪光扫过动画 */
+@keyframes shine {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(80%); }
 }
 
-@media (max-width: 850px) {
-  main {
-    max-width: 98vw;
-    padding: 1.2rem 1rem 1.3rem;
-  }
+/* 图标 wobble 摇摆动画（轻微旋转 + 缩放） */
+@keyframes wobble {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(6deg) scale(1.12); }
+  50%  { transform: rotate(-4deg) scale(1.08); }
+  75%  { transform: rotate(3deg) scale(1.12); }
+  100% { transform: rotate(0deg) scale(1); }
+}
 
+/* 卡片轻微 3D 倾斜效果
+ * 说明：结合 JS 根据鼠标位置设置 rotateX/Y
+ */
+.tilt {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: transform 160ms ease;
+  perspective: 800px;
+}
+
+/* 导航栏玻璃效果（滚动时更透明）
+ * 说明：滚动时通过 .scrolled 降低不透明度并增加阴影层次
+ */
+.glass-header {
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  backdrop-filter: saturate(180%) blur(14px);
+  background-color: rgba(255, 255, 255, 0.55);
+  transition: background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.45); /* slate-900 */
+}
+.glass-header.scrolled {
+  background-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  border-bottom-color: rgba(100, 116, 139, 0.35); /* slate-500 */
+}
+html.dark .glass-header.scrolled {
+  background-color: rgba(15, 23, 42, 0.35);
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+
+/* 收藏/复制按钮悬浮动效 */
+.fav-btn:hover i,
+.copy-btn:hover i {
+  animation: wobble 420ms ease;
+}
+
+/* Confetti 图层与 Canvas 填满视口 */
+#confettiLayer { pointer-events: none; }
+#confettiCanvas { display: block; width: 100%; height: 100%; }
+
+/* 导航栏品牌（Logo + 标题）动效
+ * 悬浮：轻微缩放/倾斜，与整体玻璃风格统一
+ * 点击：多种阶段组合（shake/drop/return、spin/flip/bounce/slide/twist/side）随机播放
+ */
+.brand .brand-logo,
+.brand .brand-title {
+  will-change: transform, opacity, filter;
+}
+
+/* 将品牌容器选择器别名为 #brand 以匹配 HTML 结构 */
+#brand.brand .brand-logo,
+#brand.brand .brand-title {
+  will-change: transform, opacity, filter;
+}
+
+/* 点击阶段 1：抖动（标准） */
+@keyframes brandShake {
+  0%   { transform: translateX(0) rotate(0deg); }
+  20%  { transform: translateX(-2px) rotate(-1deg); }
+  40%  { transform: translateX(2px) rotate(1deg); }
+  60%  { transform: translateX(-1.5px) rotate(-0.8deg); }
+  80%  { transform: translateX(1.5px) rotate(0.8deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* 轻微抖动（更克制） */
+@keyframes brandShakeLite {
+  0%   { transform: translateX(0) rotate(0deg); }
+  30%  { transform: translateX(-1px) rotate(-0.5deg); }
+  60%  { transform: translateX(1px) rotate(0.5deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* 点击阶段 2：掉落（同时轻微旋转与淡出） */
+@keyframes brandDrop {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(140%) rotate(8deg) scale(0.96); opacity: 0; filter: blur(1px); }
+}
+
+/* 点击阶段 3：回弹显示（自上而下、微缩放 + 透明度渐入） */
+@keyframes brandReturn {
+  0%   { transform: translateY(-20%) scale(0.96); opacity: 0; filter: blur(0.5px); }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0px); }
+}
+
+/* 品牌容器在不同阶段附加类，驱动子元素动画（标准组） */
+.brand.brand-shake .brand-logo,
+.brand.brand-shake .brand-title {
+  animation: brandShake 280ms ease;
+}
+.brand.brand-drop .brand-logo,
+.brand.brand-drop .brand-title {
+  animation: brandDrop 420ms ease forwards;
+}
+.brand.brand-return .brand-logo,
+.brand.brand-return .brand-title {
+  animation: brandReturn 420ms ease forwards;
+}
+
+/* 其他随机点击特效：spin / flip / bounce / slide / twist / side */
+/* 说明：与玻璃拟态整体风格统一，保持轻量不喧宾夺主 */
+
+/* 旋转下落 + 旋转回弹（旋转缩放混合） */
+@keyframes brandTwistOut {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(125%) rotate(24deg) scale(0.92); opacity: 0; filter: blur(0.8px); }
+}
+@keyframes brandTwistIn {
+  0%   { transform: translateY(-22%) rotate(-12deg) scale(0.95); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-twist-out .brand-logo,
+.brand.brand-twist-out .brand-title {
+  animation: brandTwistOut 460ms ease forwards;
+}
+.brand.brand-twist-in .brand-logo,
+.brand.brand-twist-in .brand-title {
+  animation: brandTwistIn 500ms ease-out forwards;
+}
+
+/* 旋转下落 + 旋转回弹（更大旋转角度） */
+@keyframes brandSpinOut {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(120%) rotate(260deg) scale(0.95); opacity: 0; filter: blur(1px); }
+}
+@keyframes brandSpinIn {
+  0%   { transform: translateY(-18%) rotate(-20deg) scale(0.95); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-spin-out .brand-logo,
+.brand.brand-spin-out .brand-title {
+  animation: brandSpinOut 500ms ease forwards;
+}
+.brand.brand-spin-in .brand-logo,
+.brand.brand-spin-in .brand-title {
+  animation: brandSpinIn 520ms ease-out forwards;
+}
+
+/* 翻转下落 + 翻转回弹 */
+@keyframes brandFlipOut {
+  0%   { transform: translateY(0) rotateY(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(120%) rotateY(80deg) scale(0.94); opacity: 0; filter: blur(1px); }
+}
+@keyframes brandFlipIn {
+  0%   { transform: translateY(-20%) rotateY(-30deg) scale(0.95); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translateY(0) rotateY(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-flip-out .brand-logo,
+.brand.brand-flip-out .brand-title {
+  animation: brandFlipOut 420ms ease forwards;
+}
+.brand.brand-flip-in .brand-logo,
+.brand.brand-flip-in .brand-title {
+  animation: brandFlipIn 480ms ease forwards;
+}
+
+/* 弹性下落 + 弹性回弹 */
+@keyframes brandBounceOut {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  35%  { transform: translateY(35%) scale(0.995); }
+  55%  { transform: translateY(14%) scale(1.005); }
+  80%  { transform: translateY(120%) scale(0.97); opacity: 0; filter: blur(0.6px); }
+  100% { transform: translateY(120%) scale(0.97); opacity: 0; filter: blur(0.6px); }
+}
+@keyframes brandBounceIn {
+  0%   { transform: translateY(-35%) scale(0.98); opacity: 0; }
+  38%  { transform: translateY(12%) scale(1.02); opacity: 1; }
+  60%  { transform: translateY(-8%) scale(0.995); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.brand.brand-bounce-out .brand-logo,
+.brand.brand-bounce-out .brand-title {
+  animation: brandBounceOut 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.brand.brand-bounce-in .brand-logo,
+.brand.brand-bounce-in .brand-title {
+  animation: brandBounceIn 440ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 斜向滑出 + 斜向滑入 */
+@keyframes brandSlideOut {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translate(-40%, 60%) rotate(-6deg) scale(0.96); opacity: 0; filter: blur(0.6px); }
+}
+@keyframes brandSlideIn {
+  0%   { transform: translate(30%, -20%) rotate(4deg) scale(0.96); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-slide-out .brand-logo,
+.brand.brand-slide-out .brand-title {
+  animation: brandSlideOut 380ms ease forwards;
+}
+.brand.brand-slide-in .brand-logo,
+.brand.brand-slide-in .brand-title {
+  animation: brandSlideIn 420ms ease forwards;
+}
+
+/* 侧向滑出 + 轻微抖动后从侧边飞入 */
+@keyframes brandSideOut {
+  0%   { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateX(120%) rotate(6deg) scale(0.96); opacity: 0; filter: blur(0.6px); }
+}
+@keyframes brandSideIn {
+  0%   { transform: translateX(-18%) rotate(-4deg) scale(0.98); opacity: 0; filter: blur(0.3px); }
+  100% { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-shake-lite .brand-logo,
+.brand.brand-shake-lite .brand-title {
+  animation: brandShakeLite 220ms ease;
+}
+.brand.brand-side-out .brand-logo,
+.brand.brand-side-out .brand-title {
+  animation: brandSideOut 360ms ease forwards;
+}
+.brand.brand-side-in .brand-logo,
+.brand.brand-side-in .brand-title {
+  animation: brandSideIn 420ms ease forwards;
+}
+
+/* Confetti 庆祝特效 */
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 1;
+  transform: translate(0, 0);
+  will-change: transform, opacity;
+  animation: confPop 160ms ease-out, confFall var(--dur, 1200ms) ease-out forwards;
+}
+@keyframes confPop {
+  0%   { transform: translate(0, 0) scale(0.85); }
+  100% { transform: translate(0, -6px) scale(1); }
+}
+@keyframes confFall {
+  100% { transform: translate(var(--dx, 0px), var(--dy, 160px)) rotate(var(--rot, 720deg)); opacity: 0; }
 }

@@ -1,18 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Static Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0f172a" />
+  <title>开发者网站导航 · Glassmorphism</title>
+
+  <!-- Tailwind CSS (Play CDN). For production, consider a proper build. -->
+  <script src="https://cdn.tailwindcss.com?plugins=line-clamp"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slateglass: 'rgba(255,255,255,0.06)'
+          },
+          boxShadow: {
+            glass: '0 8px 24px rgba(15, 23, 42, 0.35)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome 6.5.1 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Custom styles (background, minor helpers) -->
   <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
-  <main>
-    <h1>Welcome to Your Static Site</h1>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-200 text-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 dark:text-slate-100 selection:bg-fuchsia-500/30 selection:text-white">
+  <!-- 顶部滚动进度条 -->
+  <div id="scrollProgress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-fuchsia-500 via-cyan-400 to-indigo-500 w-0 z-50"></div>
+
+  <!-- Bing 背景图（每日） -->
+  <div id="bingBg" class="fixed inset-0 -z-20 bg-center bg-cover opacity-60 dark:opacity-40"></div>
+
+  <!-- 背景液态光斑 -->
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute -top-24 -left-24 h-[28rem] w-[28rem] rounded-full bg-fuchsia-500/20 blur-3xl"></div>
+    <div class="absolute top-32 left-1/2 -translate-x-1/2 h-[20rem] w-[20rem] rounded-full bg-cyan-400/20 blur-2xl"></div>
+    <div class="absolute bottom-0 right-0 h-[30rem] w-[30rem] rounded-full bg-indigo-500/25 blur-3xl"></div>
+  </div>
+
+  <!-- 鼠标光影跟随 -->
+  <div id="cursorGlow" class="fixed inset-0 -z-5 pointer-events-none"></div>
+
+  <!-- 页头 -->
+  <header id="siteHeader" class="sticky top-0 z-40 glass-header border-b border-slate-200/50 dark:border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+      <div id="brand" class="group flex items-center gap-3 cursor-pointer">
+        <span class="brand-logo icon-wrap inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 border border-white/20 shadow-glass transition group-hover:scale-105">
+          <i class="fa-solid fa-compass text-fuchsia-400 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-125"></i>
+        </span>
+        <h1 class="brand-title text-lg sm:text-xl font-semibold tracking-wide transition-transform duration-300 group-hover:skew-x-1 group-hover:scale-105">
+          开发者网站导航
+        </h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="toggleTheme" class="glass-btn px-3 py-1.5 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-glass">
+          <i class="fa-solid fa-moon mr-1.5"></i>
+          <span class="hidden sm:inline">深色模式</span>
+        </button>
+        <a href="https://dev-tools-hub.180822.xyz/" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 transition shadow-glass">
+          <i class="fa-solid fa-database mr-1.5"></i>
+          数据来源参考
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容 -->
+  <main class="mx-auto max-w-7xl px-4 py-8">
+    <!-- 搜索与统计 -->
+    <section class="mb-6">
+      <div class="flex flex-col md:flex-row gap-3 md:gap-4 items-start md:items-center">
+        <div class="relative flex-1 w-full">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"></i>
+          <input id="searchInput" type="text" placeholder="搜索工具、服务、平台..." class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/50 placeholder:text-slate-300" />
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span id="resultCount" class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20">0 条结果</span>
+          <button id="showFavorites" class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition">
+            <i class="fa-solid fa-star mr-1 text-amber-300"></i>
+            仅看收藏
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 分类 -->
+    <nav id="categoryBar" class="flex flex-wrap gap-2 mb-6"></nav>
+
+    <!-- 网格 -->
+    <section id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></section>
+
+    <!-- 空态 -->
+    <section id="emptyState" class="hidden mt-10 text-center text-slate-300">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20">
+        <i class="fa-regular fa-circle-xmark"></i>
+        暂无匹配结果，请尝试修改搜索或切换分类。
+      </div>
+    </section>
   </main>
-  <footer>
-    <p>&copy; 2025 Your Name</p>
+
+  <!-- 页脚 -->
+  <footer class="mt-8 border-t border-slate-200/50 dark:border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-6 text-sm text-slate-700 dark:text-slate-300">
+      <p>构建于 Tailwind CSS + Font Awesome · 玻璃拟态风格</p>
+      <p class="mt-1">数据可参考：<a class="underline hover:text-fuchsia-600 dark:hover:text-fuchsia-300" href="https://dev-tools-hub.180822.xyz/" target="_blank" rel="noopener">dev-tools-hub.180822.xyz</a></p>
+    </div>
   </footer>
+
+  <!-- Toast 提示 -->
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg bg-slate-900/80 text-white text-sm shadow-lg opacity-0 translate-y-2 pointer-events-none transition z-40 dark:bg-slate-900/80">
+    已复制链接
+  </div>
+
+  <!-- 描述弹窗（点击描述时显示完整信息） -->
+  <div id="descPopover" class="fixed z-50 max-w-xs sm:max-w-sm p-3 rounded-xl border border-slate-200 bg-white/85 text-slate-800 shadow-glass backdrop-blur-xl opacity-0 scale-95 pointer-events-none transition dark:bg-slate-900/75 dark:text-slate-100 dark:border-white/20"></div>
+
+  <!-- Confetti 特效图层（含 Canvas，用于自然物理动画） -->
+  <div id="confettiLayer" class="fixed inset-0 pointer-events-none z-50">
+    <canvas id="confettiCanvas" class="w-full h-full"></canvas>
+  </div>
+
+  <!-- 回到顶部火箭 -->
+  <button id="scrollTopBtn" aria-label="回到顶部" class="fixed bottom-6 right-6 h-11 w-11 rounded-full bg-fuchsia-600 text-white shadow-glass flex items-center justify-center opacity-0 translate-y-2 pointer-events-none transition z-40 hover:scale-105 dark:bg-fuchsia-500">
+    <i class="fa-solid fa-rocket"></i>
+  </button>
+
+  <!-- 数据与脚本 -->
+  <script src="assets/data.js"></script>
+  <!-- Canvas Confetti 库（用于更自然的庆祝动画） -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="assets/script.js"></script>
 </body>
 </html>
