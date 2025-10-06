@@ -1,3 +1,14 @@
+/* 样式说明
+ * - 全局排版与过渡
+ * - 玻璃拟态增强（.glass-btn）
+ * - 可访问性焦点样式（:focus-visible）
+ * - Bing 背景图与鼠标光影层
+ * - 图标悬浮动效（闪光 + 摆动）
+ * - 卡片轻微 3D 倾斜（.tilt）
+ * - 导航栏玻璃态（.glass-header / .scrolled）
+ * - 收藏/复制按钮的 wobble 悬浮动效
+ */
+
 /* Minimal global styles; Tailwind handles most UI. */
 
 html, body {
@@ -11,46 +22,59 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 }
 
-/* Glass-like backdrop for buttons (enhances tailwind classes) */
+/* Glass-like backdrop for buttons (enhances tailwind classes)
+ * 说明：给按钮提供更强的玻璃拟态质感（饱和 + 模糊）
+ */
 .glass-btn {
   -webkit-backdrop-filter: saturate(180%) blur(8px);
   backdrop-filter: saturate(180%) blur(8px);
 }
 
-/* Optional: refined focus ring for keyboard users */
+/* Optional: refined focus ring for keyboard users
+ * 说明：键盘可访问性优化，提供更明显的焦点环
+ */
 :focus-visible {
   outline: 2px solid rgba(244, 114, 182, 0.5); /* fuchsia-400/50 */
   outline-offset: 2px;
 }
 
-/* Smooth transitions for theme/background */
+/* Smooth transitions for theme/background
+ * 说明：提升主题切换与悬浮状态的平滑过渡体验
+ */
 * {
   transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
 
-/* Bing 背景图以及鼠标光影跟随 */
+/* Bing 背景图以及鼠标光影跟随
+ * 说明：--x/--y 用于定位径向光影中心
+ */
 :root {
   --x: 50%;
   --y: 50%;
 }
 
+/* 背景图增强（饱和度与对比度轻微提升） */
 #bingBg {
   background-size: cover;
   background-position: center;
   filter: saturate(120%) contrast(105%);
 }
 
+/* 鼠标光影层：通过 CSS 变量控制径向渐变位置 */
 #cursorGlow {
   pointer-events: none;
   background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.28), rgba(255,255,255,0) 60%);
   mix-blend-mode: overlay;
 }
 
+/* 深色模式下的光影层稍微减弱以避免过亮 */
 html.dark #cursorGlow {
   background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.12), rgba(255,255,255,0) 60%);
 }
 
-/* 图标悬浮动态效果：闪光 + 轻微摆动 */
+/* 图标悬浮动态效果：闪光 + 轻微摆动
+ * 说明：hover 时有扫光动画并让图标 wobble 摆动
+ */
 .icon-wrap {
   position: relative;
   overflow: hidden;
@@ -73,11 +97,13 @@ html.dark #cursorGlow {
   animation: wobble 480ms ease;
 }
 
+/* 闪光扫过动画 */
 @keyframes shine {
   0% { transform: translateX(0); }
   100% { transform: translateX(80%); }
 }
 
+/* 图标 wobble 摇摆动画（轻微旋转 + 缩放） */
 @keyframes wobble {
   0%   { transform: rotate(0deg) scale(1); }
   25%  { transform: rotate(6deg) scale(1.12); }
@@ -86,7 +112,9 @@ html.dark #cursorGlow {
   100% { transform: rotate(0deg) scale(1); }
 }
 
-/* 卡片轻微 3D 倾斜效果 */
+/* 卡片轻微 3D 倾斜效果
+ * 说明：结合 JS 根据鼠标位置设置 rotateX/Y
+ */
 .tilt {
   will-change: transform;
   transform-style: preserve-3d;
@@ -94,7 +122,9 @@ html.dark #cursorGlow {
   perspective: 800px;
 }
 
-/* 导航栏玻璃效果（滚动时更透明） */
+/* 导航栏玻璃效果（滚动时更透明）
+ * 说明：滚动时通过 .scrolled 降低不透明度并增加阴影层次
+ */
 .glass-header {
   -webkit-backdrop-filter: saturate(180%) blur(14px);
   backdrop-filter: saturate(180%) blur(14px);
@@ -114,7 +144,9 @@ html.dark .glass-header.scrolled {
   border-bottom-color: rgba(255, 255, 255, 0.16);
 }
 
-/* 收藏/复制按钮悬浮动效 */
+/* 收藏/复制按钮悬浮动效
+ * 说明：在 hover 时触发 wobble 摆动，增强交互趣味
+ */
 .fav-btn:hover i,
 .copy-btn:hover i {
   animation: wobble 420ms ease;

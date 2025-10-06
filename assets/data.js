@@ -1,8 +1,10 @@
 /**
  * 导航数据 (可根据需要扩展/修改)
  * 参考 https://dev-tools-hub.180822.xyz/ 的分类与内容
+ * 说明：本文件仅增加中文注释，不改变数据结构
  */
 var NAV_DATA = [
+  // 技术栈（前端/后端常用技术与框架）
   {
     id: "tech-stack",
     name: "技术栈",
@@ -16,6 +18,8 @@ var NAV_DATA = [
       { id: "tailwindcss", title: "Tailwind CSS", url: "https://tailwindcss.com/", desc: "实用优先的 CSS 框架", icon: "fa-solid fa-swatchbook" }
     ]
   },
+
+  // 核心开发（IDE、终端、CI/CD 等）
   {
     id: "core-dev",
     name: "核心开发",
@@ -26,6 +30,8 @@ var NAV_DATA = [
       { id: "gha", title: "GitHub Actions", url: "https://github.com/features/actions", desc: "CI/CD 自动化构建与部署", icon: "fa-brands fa-github" }
     ]
   },
+
+  // 前端托管（静态站点与 JS 框架托管平台）
   {
     id: "hosting",
     name: "前端托管",
@@ -37,6 +43,8 @@ var NAV_DATA = [
       { id: "cf-pages", title: "Cloudflare Pages", url: "https://pages.cloudflare.com/", desc: "Cloudflare 生态的静态/JS 框架托管", icon: "fa-solid fa-cloud" }
     ]
   },
+
+  // 数据库服务（Serverless/云数据库平台）
   {
     id: "db-services",
     name: "数据库服务",
@@ -48,6 +56,8 @@ var NAV_DATA = [
       { id: "upstash", title: "Upstash", url: "https://upstash.com/", desc: "Serverless Redis/Kafka/VectorDB", icon: "fa-solid fa-database" }
     ]
   },
+
+  // 分析工具（流量与行为分析）
   {
     id: "analytics",
     name: "分析工具",
@@ -59,6 +69,8 @@ var NAV_DATA = [
       { id: "umami", title: "Umami", url: "https://umami.is/", desc: "开源网站分析平台", icon: "fa-solid fa-chart-pie" }
     ]
   },
+
+  // 设计与资源（设计工具、图标与字体）
   {
     id: "design",
     name: "设计与资源",
@@ -71,6 +83,8 @@ var NAV_DATA = [
       { id: "font-awesome", title: "Font Awesome", url: "https://fontawesome.com/", desc: "海量图标资源", icon: "fa-solid fa-icons" }
     ]
   },
+
+  // 服务器与计算（云服务器与现代计算平台）
   {
     id: "servers",
     name: "服务器与计算",
@@ -82,6 +96,8 @@ var NAV_DATA = [
       { id: "linode", title: "Linode", url: "https://www.linode.com/", desc: "老牌稳定的云服务商 (Akamai)", icon: "fa-solid fa-server" }
     ]
   },
+
+  // 文档与 API（文档站与接口设计）
   {
     id: "docs",
     name: "文档与 API",
