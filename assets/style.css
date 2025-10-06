@@ -93,3 +93,23 @@ html.dark #cursorGlow {
   transition: transform 160ms ease;
   perspective: 800px;
 }
+
+/* 导航栏玻璃效果（滚动时更透明） */
+.glass-header {
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  backdrop-filter: saturate(180%) blur(14px);
+  background-color: rgba(255, 255, 255, 0.55);
+  transition: background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+html.dark .glass-header {
+  background-color: rgba(15, 23, 42, 0.45); /* slate-900 */
+}
+.glass-header.scrolled {
+  background-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  border-bottom-color: rgba(100, 116, 139, 0.35); /* slate-500 */
+}
+html.dark .glass-header.scrolled {
+  background-color: rgba(15, 23, 42, 0.35);
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}

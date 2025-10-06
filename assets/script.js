@@ -17,6 +17,9 @@
   var toastEl = document.getElementById("toast");
   var bingBgEl = document.getElementById("bingBg");
   var cursorGlowEl = document.getElementById("cursorGlow");
+  var siteHeader = document.getElementById("siteHeader");
+  var scrollTopBtn = document.getElementById("scrollTopBtn");
+  var scrollProgressEl = document.getElementById("scrollProgress");
 
   // State
   var favorites = new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"));
@@ -93,6 +96,46 @@
     cursorGlowEl.style.setProperty("--y", y);
   });
 
+  // Scroll UI: header glass intensify, progress bar, rocket visibility
+  function updateScrollUi() {
+    var y = window.scrollY || document.documentElement.scrollTop || 0;
+
+    if (siteHeader) {
+      if (y > 12) {
+        siteHeader.classList.add("scrolled");
+      } else {
+        siteHeader.classList.remove("scrolled");
+      }
+    }
+
+    if (scrollTopBtn) {
+      var show = y > 240;
+      scrollTopBtn.classList.toggle("opacity-100", show);
+      scrollTopBtn.classList.toggle("translate-y-0", show);
+      scrollTopBtn.classList.toggle("pointer-events-auto", show);
+      scrollTopBtn.classList.toggle("opacity-0", !show);
+      scrollTopBtn.classList.toggle("translate-y-2", !show);
+      scrollTopBtn.classList.toggle("pointer-events-none", !show);
+    }
+
+    if (scrollProgressEl) {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = h > 0 ? Math.min(100, Math.max(0, (y / h) * 100)) : 0;
+      scrollProgressEl.style.width = pct.toFixed(2) + "%";
+    }
+  }
+  window.addEventListener("scroll", updateScrollUi, { passive: true });
+
+  // Rocket click -> scroll to top
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      // hide immediately for feedback
+      scrollTopBtn.classList.remove("opacity-100", "translate-y-0", "pointer-events-auto");
+      scrollTopBtn.classList.add("opacity-0", "translate-y-2", "pointer-events-none");
+    });
+  }
+
   // Toast
   function showToast(msg) {
     if (!toastEl) return;
@@ -117,8 +160,10 @@
     var html = chips.map(function (c) {
       var active = c.id === state.category;
       var base =
-        "px-3 py-1.5 rounded-xl border text-sm transition inline-flex items-center gap-2 bg-slate-100 border-slate-200 text-slate-700 dark:bg-white/10 dark:border-white/20 dark:text-slate-200";
-      var act = "bg-fuchsia-500/30 border-fuchsia-400/40 text-white";
+        "px-3 py-1.5 rounded-xl border text-sm transition inline-flex items-center gap-2 bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/20";
+      var act =
+        "text-white bg-fuchsia-600 border-fuchsia-700 shadow-sm ring-2 ring-fuchsia-300/50 hover:bg-fuchsia-700 " +
+        "dark:bg-fuchsia-500 dark:border-fuchsia-400 dark:ring-fuchsia-300/40 dark:hover:bg-fuchsia-600";
       return (
         '<button class="' +
         base +
@@ -349,4 +394,5 @@
   // Init
   renderCategories();
   renderGrid();
+  updateScrollUi();
 })();
