@@ -86,33 +86,76 @@
     });
   }
 
-  // Dynamic background（免 CORS 背景图，按日变化）
-  // 说明：不再调用 Bing JSON 接口，避免本地开发环境的 CORS 限制。
-  //      使用 picsum + unsplash 的图片直链进行逐级回退，预加载后设置为背景。
-  function setDynamicBackground() {
+  // Background preference: Bing first, then Picsum, finally Unsplash（背景优先级：Bing > Picsum > Unsplash）
+  function setBackgroundPreferredBing() {
     if (!bingBgEl) return;
-    var seed = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    var candidates = [
-      'https://picsum.photos/seed/' + seed + '/1920/1080',
-      'https://source.unsplash.com/1920x1080/?nature,landscape',
-      'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop'
+
+    var bingJson = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN";
+    var proxyUrls = [
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(bingJson),
+      "https://cors.isomorphic-git.org/" + bingJson,
+      "https://r.jina.ai/http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN"
     ];
-    var i = 0;
-    function tryNext() {
-      if (i >= candidates.length) return;
-      var url = candidates[i++];
+
+    function preloadAndSet(url, onFail) {
       var img = new Image();
       img.onload = function () {
         bingBgEl.style.backgroundImage = 'url("' + url + '")';
       };
       img.onerror = function () {
-        tryNext();
+        onFail && onFail();
       };
       img.src = url;
     }
-    tryNext();
+
+    function tryBing(i) {
+      if (i >= proxyUrls.length) {
+        // Bing 获取失败，转入其他源
+        tryOthers();
+        return;
+      }
+      var u = proxyUrls[i];
+      fetch(u).then(function (r) {
+        return r.text();
+      }).then(function (txt) {
+        var data;
+        try { data = JSON.parse(txt); } catch (e) { data = null; }
+        var img = data && data.images && data.images[0];
+        var path = img && (img.url || (img.urlbase && (img.urlbase + "_1920x1080.jpg")));
+        var full = path ? (path.startsWith("http") ? path : "https://www.bing.com" + path) : null;
+        if (full) {
+          preloadAndSet(full, function () {
+            // 如果 Bing 图片直链预加载失败，继续尝试下一个代理
+            tryBing(i + 1);
+          });
+        } else {
+          // JSON 解析失败或无图片，尝试下一个代理
+          tryBing(i + 1);
+        }
+      }).catch(function () {
+        // 请求失败，尝试下一个代理
+        tryBing(i + 1);
+      });
+    }
+
+    function tryOthers() {
+      var seed = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      var candidates = [
+        "https://picsum.photos/seed/" + seed + "/1920/1080",
+        "https://source.unsplash.com/1920x1080/?nature,landscape",
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop"
+      ];
+      var j = 0;
+      function next() {
+        if (j >= candidates.length) return;
+        preloadAndSet(candidates[j++], next);
+      }
+      next();
+    }
+
+    tryBing(0);
   }
-  setDynamicBackground();
+  setBackgroundPreferredBing();
 
   // Mouse light glow（鼠标光影跟随）
   // 将鼠标位置写入 CSS 变量 --x/--y，以驱动 radial-gradient 光影层
