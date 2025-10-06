@@ -162,8 +162,8 @@
       var base =
         "px-3 py-1.5 rounded-xl border text-sm transition inline-flex items-center gap-2 bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/20";
       var act =
-        "text-white bg-fuchsia-600 border-fuchsia-700 shadow-sm ring-2 ring-fuchsia-300/50 hover:bg-fuchsia-700 " +
-        "dark:bg-fuchsia-500 dark:border-fuchsia-400 dark:ring-fuchsia-300/40 dark:hover:bg-fuchsia-600";
+        "text-white bg-sky-600 border-sky-700 shadow-sm ring-2 ring-sky-300/50 hover:bg-sky-700 " +
+        "dark:bg-violet-500 dark:border-violet-400 dark:ring-violet-300/40 dark:hover:bg-violet-600";
       return (
         '<button class="' +
         base +
@@ -291,17 +291,17 @@
           it.title +
           "</a>" +
           '<div class="flex items-center gap-2">' +
-          '<button class="fav-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20" aria-label="收藏" data-id="' +
+          '<button class="fav-btn group px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20 transition" aria-label="收藏" data-id="' +
           it.id +
           '">' +
           '<i class="' +
-          (fav ? "fa-solid fa-star text-amber-400" : "fa-regular fa-star") +
-          '"></i>' +
+          (fav ? "fa-solid fa-star text-amber-400" : "fa-regular fa-star text-slate-700 dark:text-slate-200") +
+          ' transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12 group-hover:text-amber-400"></i>' +
           "</button>" +
-          '<button class="copy-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20" aria-label="复制链接" data-url="' +
+          '<button class="copy-btn group px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20 transition" aria-label="复制链接" data-url="' +
           it.url +
           '">' +
-          '<i class="fa-solid fa-copy"></i>' +
+          '<i class="fa-solid fa-copy text-slate-700 dark:text-slate-200 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6 group-hover:text-sky-600 dark:group-hover:text-violet-400"></i>' +
           "</button>" +
           "</div>" +
           "</div>" +
