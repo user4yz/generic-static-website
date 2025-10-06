@@ -200,3 +200,83 @@ html.dark .glass-header.scrolled {
 .brand.brand-return .brand-title {
   animation: brandReturn 420ms ease forwards;
 }
+
+/* 其他随机点击特效：spin / flip / bounce / slide */
+/* 说明：与玻璃拟态整体风格统一，保持轻量不喧宾夺主 */
+
+/* 旋转下落 + 旋转回弹 */
+@keyframes brandSpinOut {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(120%) rotate(260deg) scale(0.95); opacity: 0; filter: blur(1px); }
+}
+@keyframes brandSpinIn {
+  0%   { transform: translateY(-18%) rotate(-20deg) scale(0.95); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-spin-out .brand-logo,
+.brand.brand-spin-out .brand-title {
+  animation: brandSpinOut 500ms ease forwards;
+}
+.brand.brand-spin-in .brand-logo,
+.brand.brand-spin-in .brand-title {
+  animation: brandSpinIn 520ms ease-out forwards;
+}
+
+/* 翻转下落 + 翻转回弹 */
+@keyframes brandFlipOut {
+  0%   { transform: translateY(0) rotateY(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translateY(120%) rotateY(80deg) scale(0.94); opacity: 0; filter: blur(1px); }
+}
+@keyframes brandFlipIn {
+  0%   { transform: translateY(-20%) rotateY(-30deg) scale(0.95); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translateY(0) rotateY(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-flip-out .brand-logo,
+.brand.brand-flip-out .brand-title {
+  animation: brandFlipOut 420ms ease forwards;
+}
+.brand.brand-flip-in .brand-logo,
+.brand.brand-flip-in .brand-title {
+  animation: brandFlipIn 480ms ease forwards;
+}
+
+/* 弹性下落 + 弹性回弹 */
+@keyframes brandBounceOut {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  35%  { transform: translateY(35%) scale(0.995); }
+  55%  { transform: translateY(14%) scale(1.005); }
+  80%  { transform: translateY(120%) scale(0.97); opacity: 0; filter: blur(0.6px); }
+  100% { transform: translateY(120%) scale(0.97); opacity: 0; filter: blur(0.6px); }
+}
+@keyframes brandBounceIn {
+  0%   { transform: translateY(-35%) scale(0.98); opacity: 0; }
+  38%  { transform: translateY(12%) scale(1.02); opacity: 1; }
+  60%  { transform: translateY(-8%) scale(0.995); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.brand.brand-bounce-out .brand-logo,
+.brand.brand-bounce-out .brand-title {
+  animation: brandBounceOut 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.brand.brand-bounce-in .brand-logo,
+.brand.brand-bounce-in .brand-title {
+  animation: brandBounceIn 440ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 斜向滑出 + 斜向滑入 */
+@keyframes brandSlideOut {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+  100% { transform: translate(-40%, 60%) rotate(-6deg) scale(0.96); opacity: 0; filter: blur(0.6px); }
+}
+@keyframes brandSlideIn {
+  0%   { transform: translate(30%, -20%) rotate(4deg) scale(0.96); opacity: 0; filter: blur(0.4px); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+}
+.brand.brand-slide-out .brand-logo,
+.brand.brand-slide-out .brand-title {
+  animation: brandSlideOut 380ms ease forwards;
+}
+.brand.brand-slide-in .brand-logo,
+.brand.brand-slide-in .brand-title {
+  animation: brandSlideIn 420ms ease forwards;
+}

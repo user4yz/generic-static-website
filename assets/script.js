@@ -150,28 +150,54 @@
   window.addEventListener("scroll", hideDescPopover, { passive: true });
   window.addEventListener("resize", hideDescPopover);
 
-  // 品牌点击动效：抖动 -> 掉落 -> 回弹显示
+  // 品牌点击动效（随机）：从多种特效中随机选择并按阶段执行
   function runBrandClickAnimation() {
     if (!brandEl) return;
     if (brandEl._animating) return; // 防连点
     brandEl._animating = true;
 
-    // 阶段 1：抖动
-    brandEl.classList.add("brand", "brand-shake");
-    setTimeout(function () {
-      brandEl.classList.remove("brand-shake");
-      // 阶段 2：掉落
-      brandEl.classList.add("brand-drop");
+    // 确保容器有品牌标识类（用于 CSS 选择器匹配）
+    brandEl.classList.add("brand");
+
+    // 多种特效定义（阶段类名 + 每阶段持续时间）
+    var effects = [
+      // 经典：抖动 -> 掉落 -> 回弹
+      { stages: ["brand-shake", "brand-drop", "brand-return"], durations: [300, 430, 440] },
+      // 旋转：旋转下落 -> 旋转回弹
+      { stages: ["brand-spin-out", "brand-spin-in"], durations: [500, 520] },
+      // 翻转：翻转下落 -> 翻转回弹
+      { stages: ["brand-flip-out", "brand-flip-in"], durations: [420, 480] },
+      // 弹性：弹性下落 -> 弹性回弹
+      { stages: ["brand-bounce-out", "brand-bounce-in"], durations: [420, 440] },
+      // 滑动：斜向滑出 -> 斜向滑入
+      { stages: ["brand-slide-out", "brand-slide-in"], durations: [380, 420] }
+    ];
+
+    // 随机选择一个特效
+    var eff = effects[Math.floor(Math.random() * effects.length)];
+    var i = 0;
+
+    // 逐阶段执行
+    function nextStage() {
+      // 清除上一个阶段类
+      if (i > 0) {
+        brandEl.classList.remove(eff.stages[i - 1]);
+      }
+      // 执行完所有阶段后结束
+      if (i >= eff.stages.length) {
+        brandEl._animating = false;
+        return;
+      }
+      // 添加当前阶段类并在持续时间后进入下一阶段
+      brandEl.classList.add(eff.stages[i]);
+      var delay = eff.durations[i] || 400;
       setTimeout(function () {
-        brandEl.classList.remove("brand-drop");
-        // 阶段 3：回弹显示
-        brandEl.classList.add("brand-return");
-        setTimeout(function () {
-          brandEl.classList.remove("brand-return");
-          brandEl._animating = false;
-        }, 440);
-      }, 430);
-    }, 300);
+        i++;
+        nextStage();
+      }, delay);
+    }
+
+    nextStage();
   }
 
   if (brandEl) {
