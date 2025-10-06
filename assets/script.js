@@ -29,6 +29,9 @@
   var descPopoverEl = document.getElementById("descPopover");
   // Confetti 图层
   var confettiLayerEl = document.getElementById("confettiLayer");
+  var confettiCanvas = document.getElementById("confettiCanvas");
+  var confettiCtx = confettiCanvas && confettiCanvas.getContext("2d");
+  var confettiDpr = window.devicePixelRatio || 1;
   // 品牌区域（Logo + 标题）
   var brandEl = document.getElementById("brand");
 
@@ -152,31 +155,147 @@
   window.addEventListener("scroll", hideDescPopover, { passive: true });
   window.addEventListener("resize", hideDescPopover);
 
-  // Confetti：在指定坐标触发庆祝粒子效果（轻量实现）
-  function launchConfetti(x, y) {
+  // Confetti Canvas：更自然的物理动画
+  function resizeConfettiCanvas() {
+    if (!confettiCanvas || !confettiCtx) return;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    confettiCanvas.width = Math.floor(w * confettiDpr);
+    confettiCanvas.height = Math.floor(h * confettiDpr);
+    confettiCanvas.style.width = w + "px";
+    confettiCanvas.style.height = h + "px";
+    confettiCtx.setTransform(confettiDpr, 0, 0, confettiDpr, 0, 0);
+  }
+  resizeConfettiCanvas();
+  window.addEventListener("resize", resizeConfettiCanvas);
+
+  var confettiParticles = [];
+  var confettiAnimating = false;
+  var confettiLastTs = 0;
+
+  function spawnConfetti(x, y, count) {
+    var colors = ["#22d3ee", "#a78bfa", "#f472b6", "#f59e0b", "#10b981", "#60a5fa"];
+    for (var i = 0; i < count; i++) {
+      var angle = (-80 + Math.random() * 20) * (Math.PI / 180); // 主要向上（-90±10°）
+      var speed = 260 + Math.random() * 320; // 初速度（px/s）
+      var p = {
+        x: x, y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        ax: (Math.random() - 0.5) * 40, // 横向风力（px/s^2）
+        ay: 600, // 重力（px/s^2）
+        rot: Math.random() * 360,
+        vrot: (Math.random() < 0.5 ? -1 : 1) * (90 + Math.random() * 360), // 自旋速度（deg/s）
+        w: 6 + Math.random() * 8,
+        h: 8 + Math.random() * 10,
+        shape: ["rect", "tri", "circ"][Math.floor(Math.random() * 3)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1.6 + Math.random() * 0.9, // 存活时长（s）
+        age: 0,
+        alpha: 1
+      };
+      confettiParticles.push(p);
+    }
+  }
+
+  function drawParticle(p) {
+    if (!confettiCtx) return;
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rot * Math.PI / 180);
+    confettiCtx.globalAlpha = Math.max(0, p.alpha);
+    confettiCtx.fillStyle = p.color;
+    switch (p.shape) {
+      case "rect":
+        confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        break;
+      case "tri":
+        confettiCtx.beginPath();
+        confettiCtx.moveTo(0, -p.h / 2);
+        confettiCtx.lineTo(p.w / 2, p.h / 2);
+        confettiCtx.lineTo(-p.w / 2, p.h / 2);
+        confettiCtx.closePath();
+        confettiCtx.fill();
+        break;
+      case "circ":
+        confettiCtx.beginPath();
+        confettiCtx.arc(0, 0, Math.min(p.w, p.h) / 2, 0, Math.PI * 2);
+        confettiCtx.fill();
+        break;
+    }
+    confettiCtx.restore();
+  }
+
+  function stepConfetti(ts) {
+    if (!confettiCtx || !confettiCanvas) return;
+    if (!confettiAnimating) return;
+    if (!confettiLastTs) confettiLastTs = ts;
+    var dt = Math.min(0.033, (ts - confettiLastTs) / 1000); // 限制最长帧间隔
+    confettiLastTs = ts;
+
+    // 清屏
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+    // 更新 + 绘制
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var alive = [];
+    for (var i = 0; i < confettiParticles.length; i++) {
+      var p = confettiParticles[i];
+      // 速度与位置更新（带重力与轻微风力）
+      p.vx += p.ax * dt;
+      p.vy += p.ay * dt;
+      // 空气阻尼（轻微）
+      p.vx *= (1 - 0.06 * dt);
+      p.vy *= (1 - 0.02 * dt);
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      // 自旋
+      p.rot += p.vrot * dt;
+
+      // 生命与透明度（后期淡出）
+      p.age += dt;
+      var remain = p.life - p.age;
+      if (remain < 0.35) {
+        p.alpha = Math.max(0, remain / 0.35);
+      } else {
+        p.alpha = 1;
+      }
+
+      // 仍在屏内且未过期则绘制与保留
+      if (p.alpha > 0 && p.age < p.life && p.y < h + 80 && p.x > -80 && p.x < w + 80) {
+        drawParticle(p);
+        alive.push(p);
+      }
+    }
+    confettiParticles = alive;
+
+    if (confettiParticles.length > 0) {
+      requestAnimationFrame(stepConfetti);
+    } else {
+      confettiAnimating = false;
+      confettiLastTs = 0;
+    }
+  }
+
+  // DOM 版本（作为降级备用）
+  function launchConfettiDOM(x, y) {
     if (!confettiLayerEl) return;
-    var colors = [
-      "#22d3ee", // cyan-400
-      "#a78bfa", // violet-400
-      "#f472b6", // fuchsia-400
-      "#f59e0b", // amber-500
-      "#10b981", // emerald-500
-      "#60a5fa"  // blue-400
-    ];
-    var count = 24;
+    var colors = ["#22d3ee", "#a78bfa", "#f472b6", "#f59e0b", "#10b981", "#60a5fa"];
+    var count = 22;
     for (var i = 0; i < count; i++) {
       var piece = document.createElement("span");
       piece.className = "confetti-piece";
-      var sizeW = 6 + Math.floor(Math.random() * 6);
-      var sizeH = 8 + Math.floor(Math.random() * 6);
-      piece.style.width = sizeW + "px";
-      piece.style.height = sizeH + "px";
       piece.style.left = x + "px";
       piece.style.top = y + "px";
       piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (6 + Math.floor(Math.random() * 6)) + "px";
+      piece.style.height = (8 + Math.floor(Math.random() * 6)) + "px";
       piece.style.borderRadius = (Math.random() < 0.3 ? 50 : 2) + "px";
-      var dx = (Math.random() * 240 - 120);    // 左右散开
-      var dy = -(80 + Math.random() * 220);    // 改为向上喷射（负值）
+      var dx = (Math.random() * 240 - 120);
+      var dy = -(80 + Math.random() * 220);
       var rot = 360 + Math.floor(Math.random() * 720);
       var dur = 900 + Math.floor(Math.random() * 700);
       piece.style.setProperty("--dx", dx + "px");
@@ -185,14 +304,27 @@
       piece.style.setProperty("--dur", dur + "ms");
       confettiLayerEl.appendChild(piece);
       (function (el, t) {
-        setTimeout(function () {
-          el.remove();
-        }, t + 200);
+        setTimeout(function () { el.remove(); }, t + 200);
       })(piece, dur);
     }
   }
+
+  // 包装器：优先使用 Canvas 物理版本，不可用时使用 DOM 版本
+  function launchConfetti(x, y) {
+    if (confettiCtx && confettiCanvas) {
+      spawnConfetti(x, y, 30);
+      if (!confettiAnimating) {
+        confettiAnimating = true;
+        confettiLastTs = 0;
+        requestAnimationFrame(stepConfetti);
+      }
+    } else {
+      launchConfettiDOM(x, y);
+    }
+  }
+
   function launchConfettiAtElement(el) {
-    if (!el || !confettiLayerEl) return;
+    if (!el) return;
     var rect = el.getBoundingClientRect();
     var x = rect.left + rect.width / 2;
     var y = rect.top + rect.height / 2;

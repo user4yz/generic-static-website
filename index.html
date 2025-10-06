@@ -121,9 +121,10 @@
   <!-- 描述弹窗（点击描述时显示完整信息） -->
   <div id="descPopover" class="fixed z-50 max-w-xs sm:max-w-sm p-3 rounded-xl border border-slate-200 bg-white/85 text-slate-800 shadow-glass backdrop-blur-xl opacity-0 scale-95 pointer-events-none transition dark:bg-slate-900/75 dark:text-slate-100 dark:border-white/20"></div>
 
-  <!-- Confetti 特效图层 -->
-  <div id="confettiLayer" class="fixed inset-0 pointer-events-none z-50"></div>
-  <div id="descPopover" class="fixed z-50 max-w-xs sm:max-w-sm p-3 rounded-xl border border-slate-200 bg-white/85 text-slate-800 shadow-glass backdrop-blur-xl opacity-0 scale-95 pointer-events-none transition dark:bg-slate-900/75 dark:text-slate-100 dark:border-white/20"></div>
+  <!-- Confetti 特效图层（含 Canvas，用于自然物理动画） -->
+  <div id="confettiLayer" class="fixed inset-0 pointer-events-none z-50">
+    <canvas id="confettiCanvas" class="w-full h-full"></canvas>
+  </div>
 
   <!-- 回到顶部火箭 -->
   <button id="scrollTopBtn" aria-label="回到顶部" class="fixed bottom-6 right-6 h-11 w-11 rounded-full bg-fuchsia-600 text-white shadow-glass flex items-center justify-center opacity-0 translate-y-2 pointer-events-none transition z-40 hover:scale-105 dark:bg-fuchsia-500">

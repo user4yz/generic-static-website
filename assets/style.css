@@ -150,6 +150,10 @@ html.dark .glass-header.scrolled {
   animation: wobble 420ms ease;
 }
 
+/* Confetti 图层与 Canvas 填满视口 */
+#confettiLayer { pointer-events: none; }
+#confettiCanvas { display: block; width: 100%; height: 100%; }
+
 /* 导航栏品牌（Logo + 标题）动效
  * 悬浮：轻微缩放/倾斜，与整体玻璃风格统一
  * 点击：多种阶段组合（shake/drop/return、spin/flip/bounce/slide/twist/side）随机播放
