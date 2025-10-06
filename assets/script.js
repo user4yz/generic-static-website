@@ -216,7 +216,7 @@
     }
 
     var card =
-      'bg-white/60 border border-slate-200/60 backdrop-blur-xl rounded-2xl p-4 shadow-glass hover:bg-white/80 transition dark:bg-white/10 dark:border-white/20 dark:hover:bg-white/20';
+      'bg-white/60 border border-slate-200/60 backdrop-blur-xl rounded-2xl p-4 shadow-glass hover:bg-white/80 transition dark:bg-white/10 dark:border-white/20 dark:hover:bg-white/20 tilt';
     var titleCls = "text-base font-semibold tracking-wide text-slate-800 dark:text-white";
     var descCls = "mt-1.5 text-sm text-slate-600 dark:text-slate-300";
     var chipCls =
@@ -231,10 +231,10 @@
           card +
           '">' +
           '<div class="flex items-start gap-3">' +
-          '<div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/20 shrink-0">' +
+          '<div class="group icon-wrap inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/20 shrink-0 transition hover:scale-105">' +
           '<i class="' +
           (it.icon || "fa-solid fa-link") +
-          ' text-fuchsia-500 dark:text-fuchsia-300 text-lg"></i>' +
+          ' text-fuchsia-500 dark:text-fuchsia-300 text-lg transition-transform duration-300 group-hover:rotate-6 group-hover:scale-125"></i>' +
           "</div>" +
           '<div class="flex-1">' +
           '<div class="flex items-center justify-between gap-2">' +
@@ -280,6 +280,26 @@
       .join("");
 
     gridEl.innerHTML = html;
+
+    // Attach tilt effect to cards
+    attachCardTilt();
+  }
+
+  function attachCardTilt() {
+    var cards = gridEl.querySelectorAll("article.tilt");
+    cards.forEach(function (card) {
+      card.addEventListener("mousemove", function (e) {
+        var rect = card.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        var rx = ((y / rect.height) - 0.5) * -6;
+        var ry = ((x / rect.width) - 0.5) * 6;
+        card.style.transform = "rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg)";
+      });
+      card.addEventListener("mouseleave", function () {
+        card.style.transform = "";
+      });
+    });
   }
 
   // Delegated handlers for grid actions
@@ -288,10 +308,17 @@
     if (favBtn) {
       var id = favBtn.getAttribute("data-id");
       if (!id) return;
+      var icon = favBtn.querySelector("i");
+      if (icon) {
+        icon.classList.add("animate-pulse");
+        setTimeout(function () { icon && icon.classList.remove("animate-pulse"); }, 400);
+      }
       if (favorites.has(id)) {
         favorites.delete(id);
+        showToast("已取消收藏");
       } else {
         favorites.add(id);
+        showToast("已加入收藏");
       }
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
       renderGrid();

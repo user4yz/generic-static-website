@@ -49,3 +49,47 @@ body {
 html.dark #cursorGlow {
   background: radial-gradient(600px at var(--x) var(--y), rgba(255,255,255,0.12), rgba(255,255,255,0) 60%);
 }
+
+/* 图标悬浮动态效果：闪光 + 轻微摆动 */
+.icon-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.icon-wrap::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -120%;
+  width: 260%;
+  height: 180%;
+  background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%);
+  transform: translateX(0);
+}
+.icon-wrap:hover::after {
+  animation: shine 800ms ease forwards;
+}
+
+.icon-wrap:hover i {
+  animation: wobble 480ms ease;
+}
+
+@keyframes shine {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(80%); }
+}
+
+@keyframes wobble {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(6deg) scale(1.12); }
+  50%  { transform: rotate(-4deg) scale(1.08); }
+  75%  { transform: rotate(3deg) scale(1.12); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+/* 卡片轻微 3D 倾斜效果 */
+.tilt {
+  will-change: transform;
+  transform-style: preserve-3d;
+  transition: transform 160ms ease;
+  perspective: 800px;
+}
