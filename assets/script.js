@@ -176,7 +176,7 @@
       piece.style.background = colors[Math.floor(Math.random() * colors.length)];
       piece.style.borderRadius = (Math.random() < 0.3 ? 50 : 2) + "px";
       var dx = (Math.random() * 240 - 120);    // 左右散开
-      var dy = (80 + Math.random() * 220);     // 向下飘落
+      var dy = -(80 + Math.random() * 220);    // 改为向上喷射（负值）
       var rot = 360 + Math.floor(Math.random() * 720);
       var dur = 900 + Math.floor(Math.random() * 700);
       piece.style.setProperty("--dx", dx + "px");
